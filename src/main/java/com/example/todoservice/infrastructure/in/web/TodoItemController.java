@@ -1,5 +1,6 @@
 package com.example.todoservice.infrastructure.in.web;
 
+import com.example.todoservice.application.exception.ItemModificationForbiddenException;
 import com.example.todoservice.application.usecase.ItemUseCase;
 import com.example.todoservice.infrastructure.in.web.dto.ToDoItemOutDto;
 import com.example.todoservice.infrastructure.in.web.dto.TodoItemInDto;
@@ -10,22 +11,25 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
+@RestController
+@RequestMapping("/api/todo-items")
 public class TodoItemController {
   private final ItemUseCase itemUseCase;
   private final ToDoItemMapper toDoItemMapper;
 
   @PostMapping
-  public ResponseEntity<ToDoItemOutDto> addItem(@RequestBody TodoItemInDto todoItemInDto) {
+  public ResponseEntity<ToDoItemOutDto> addItem(@RequestBody @Validated TodoItemInDto todoItemInDto) {
     TodoItem savedItem = itemUseCase.add(toDoItemMapper.todoitem(todoItemInDto));
     return new ResponseEntity<>(toDoItemMapper.todoItemOutDto(savedItem), HttpStatus.CREATED);
   }
 
   @PatchMapping("/{id}")
   public ResponseEntity<ToDoItemOutDto> updateTodoItem(
-      @PathVariable Long id, @RequestBody UpdateTodoItemDto updateTodoItemDto) {
+      @PathVariable Long id, @RequestBody UpdateTodoItemDto updateTodoItemDto) throws ItemModificationForbiddenException {
     Optional<TodoItem> updatedItemOptional =
         itemUseCase.partiallyUpdate(
             id, toDoItemMapper.todoItemPartiallyUpdateDto(updateTodoItemDto));
@@ -52,11 +56,11 @@ public class TodoItemController {
 
   @GetMapping("/{id}")
   public ResponseEntity<ToDoItemOutDto> getItemDetails(@PathVariable Long id) {
-    TodoItem item = itemUseCase.getItemById(id);
-    if (item == null) {
+    Optional<TodoItem> itemOptional = itemUseCase.getItemById(id);
+    if (itemOptional.isEmpty()) {
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-    return new ResponseEntity<>(toDoItemMapper.todoItemOutDto(item), HttpStatus.OK);
+    return new ResponseEntity<>(toDoItemMapper.todoItemOutDto(itemOptional.get()), HttpStatus.OK);
   }
 
   private List<ToDoItemOutDto> mapToTodoItemOutDtos(List<TodoItem> allItems) {

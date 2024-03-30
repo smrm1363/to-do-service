@@ -1,11 +1,19 @@
 package com.example.todoservice.model;
 
+import jakarta.annotation.Nonnull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 import java.time.LocalDateTime;
 
-public record TodoItem(
-    Long id,
-    String description,
-    ItemStatus itemStatus,
-    LocalDateTime creationDateTime,
-    LocalDateTime dueDateTime,
-    LocalDateTime markAsDoneDateTime) {}
+@Data
+@AllArgsConstructor
+public class TodoItem {
+
+  private Long id;
+  private String description;
+  private @Nonnull ItemStatus itemStatus;
+  private LocalDateTime creationDateTime;
+  private @Nonnull LocalDateTime dueDateTime;
+  private LocalDateTime markAsDoneDateTime;
+}

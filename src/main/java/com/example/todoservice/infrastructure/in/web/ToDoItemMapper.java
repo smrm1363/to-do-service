@@ -12,12 +12,12 @@ public class ToDoItemMapper {
 
   public ToDoItemOutDto todoItemOutDto(TodoItem todoItem) {
     return new ToDoItemOutDto(
-        todoItem.id(),
-        todoItem.description(),
-        todoItem.itemStatus(),
-        todoItem.creationDateTime(),
-        todoItem.dueDateTime(),
-        todoItem.markAsDoneDateTime());
+        todoItem.getId(),
+        todoItem.getDescription(),
+        todoItem.getItemStatus(),
+        todoItem.getCreationDateTime(),
+        todoItem.getDueDateTime(),
+        todoItem.getMarkAsDoneDateTime());
   }
 
   public TodoItem todoitem(TodoItemInDto todoItemInDto) {
