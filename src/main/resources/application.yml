@@ -4,5 +4,5 @@ spring:
         scheduled:
             task:
                 update-status:
-                    fixed-delay: 6000 # Runs once every minute
-                    initial-delay: 6000 # Runs once every minute
+                    fixed-delay: 60000 # Runs once every minute
+                    initial-delay: 60000 # Runs once every minute
