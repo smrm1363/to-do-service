@@ -1,0 +1,8 @@
+spring:
+    application:
+        name: to-do-service
+        scheduled:
+            task:
+                update-status:
+                    fixed-delay: 6000 # Runs once every minute
+                    initial-delay: 6000 # Runs once every minute
