@@ -3,6 +3,7 @@ package com.example.todoservice.application.service;
 import com.example.todoservice.application.dto.TodoItemPartiallyUpdateDto;
 import com.example.todoservice.application.exception.ItemMissMatchedValuesException;
 import com.example.todoservice.application.exception.ItemModificationForbiddenException;
+import com.example.todoservice.application.exception.ItemNotFoundException;
 import com.example.todoservice.application.port.TodoItemRepositoryPort;
 import com.example.todoservice.application.usecase.ItemUseCase;
 import com.example.todoservice.model.ItemStatus;
@@ -40,13 +41,13 @@ public class ItemService implements ItemUseCase {
 
   @Override
   @Transactional
-  public Optional<TodoItem> partiallyUpdate(
+  public TodoItem partiallyUpdate(
       Long id, TodoItemPartiallyUpdateDto todoItemPartiallyUpdateDto
-  ) throws ItemModificationForbiddenException, ItemMissMatchedValuesException {
+  ) throws ItemModificationForbiddenException, ItemMissMatchedValuesException, ItemNotFoundException {
     Optional<TodoItem> foundTodoItemOptional = todoItemRepositoryPort.findById(id);
     if (foundTodoItemOptional.isEmpty()) {
       log.info("Todo item with ID {} not found for partial update.", id);
-      return Optional.empty();
+      throw new ItemNotFoundException(id);
     }
     TodoItem foundTodoItem = foundTodoItemOptional.get();
     validateItemStatus(foundTodoItem.getItemStatus(), id);
@@ -62,7 +63,7 @@ public class ItemService implements ItemUseCase {
     validateTodoItem(foundTodoItem);
     TodoItem updatedItem = todoItemRepositoryPort.persist(foundTodoItem);
     log.debug("Todo item with ID {} partially updated: {}", id, updatedItem);
-    return Optional.of(updatedItem);
+    return updatedItem;
   }
 
   @Override

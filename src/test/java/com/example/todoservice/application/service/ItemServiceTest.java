@@ -3,6 +3,7 @@ package com.example.todoservice.application.service;
 import com.example.todoservice.application.dto.TodoItemPartiallyUpdateDto;
 import com.example.todoservice.application.exception.ItemMissMatchedValuesException;
 import com.example.todoservice.application.exception.ItemModificationForbiddenException;
+import com.example.todoservice.application.exception.ItemNotFoundException;
 import com.example.todoservice.application.port.TodoItemRepositoryPort;
 import com.example.todoservice.model.ItemStatus;
 import com.example.todoservice.model.TodoItem;
@@ -89,7 +90,7 @@ class ItemServiceTest {
   }
 
   @Test
-  void givenTodoItemPartiallyUpdateDoneDto_partiallyUpdate_itemUpdated() throws ItemMissMatchedValuesException, ItemModificationForbiddenException {
+  void givenTodoItemPartiallyUpdateDoneDto_partiallyUpdate_itemUpdated() throws ItemMissMatchedValuesException, ItemModificationForbiddenException, ItemNotFoundException {
     TodoItem givenSavedItem = testItemNotDone();
     TodoItemPartiallyUpdateDto todoItemPartiallyUpdateDto = todoItemPartiallyUpdateDoneDto();
 
@@ -97,16 +98,16 @@ class ItemServiceTest {
         Optional.of(givenSavedItem));
     when(todoItemRepositoryPort.persist(givenSavedItem)).thenReturn(givenSavedItem);
 
-    Optional<TodoItem> result = itemService.partiallyUpdate(givenSavedItem.getId(),
+    TodoItem result = itemService.partiallyUpdate(givenSavedItem.getId(),
         todoItemPartiallyUpdateDto
     );
 
-    assertEquals(givenSavedItem.getId(), result.get().getId());
-    assertNotNull(result.get().getMarkAsDoneDateTime());
+    assertEquals(givenSavedItem.getId(), result.getId());
+    assertNotNull(result.getMarkAsDoneDateTime());
   }
 
   @Test
-  void givenTodoItemPartiallyUpdateNotDoneDto_partiallyUpdate_itemUpdated() throws ItemMissMatchedValuesException, ItemModificationForbiddenException {
+  void givenTodoItemPartiallyUpdateNotDoneDto_partiallyUpdate_itemUpdated() throws ItemMissMatchedValuesException, ItemModificationForbiddenException, ItemNotFoundException {
     TodoItem givenSavedItem = testItemDone();
     TodoItemPartiallyUpdateDto todoItemPartiallyUpdateDto = todoItemPartiallyUpdateNotDoneDto();
 
@@ -114,12 +115,12 @@ class ItemServiceTest {
         Optional.of(givenSavedItem));
     when(todoItemRepositoryPort.persist(givenSavedItem)).thenReturn(givenSavedItem);
 
-    Optional<TodoItem> result = itemService.partiallyUpdate(givenSavedItem.getId(),
+    TodoItem result = itemService.partiallyUpdate(givenSavedItem.getId(),
         todoItemPartiallyUpdateDto
     );
 
-    assertEquals(givenSavedItem.getId(), result.get().getId());
-    assertNull(result.get().getMarkAsDoneDateTime());
+    assertEquals(givenSavedItem.getId(), result.getId());
+    assertNull(result.getMarkAsDoneDateTime());
   }
 
   @Test

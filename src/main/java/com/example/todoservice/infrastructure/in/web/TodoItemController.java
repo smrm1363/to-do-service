@@ -23,58 +23,50 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/todo-items")
 public class TodoItemController {
 
-  private final ItemUseCase itemUseCase;
-  private final ToDoItemMapper toDoItemMapper;
+    private final ItemUseCase itemUseCase;
+    private final ToDoItemMapper toDoItemMapper;
 
-  @PostMapping
-  public ResponseEntity<ToDoItemOutDto> addItem(
-      @RequestBody @Validated TodoItemInDto todoItemInDto
-  ) throws ItemMissMatchedValuesException {
-    TodoItem savedItem;
-    savedItem = itemUseCase.add(toDoItemMapper.todoitem(todoItemInDto));
-    return new ResponseEntity<>(toDoItemMapper.todoItemOutDto(savedItem), HttpStatus.CREATED);
-  }
-
-  @PatchMapping("/{id}")
-  public ResponseEntity<ToDoItemOutDto> updateTodoItem(
-      @PathVariable Long id, @RequestBody UpdateTodoItemDto updateTodoItemDto
-  ) throws ItemNotFoundException, ItemMissMatchedValuesException, ItemModificationForbiddenException {
-    Optional<TodoItem> updatedItemOptional;
-    updatedItemOptional = itemUseCase.partiallyUpdate(
-        id, toDoItemMapper.todoItemPartiallyUpdateDto(updateTodoItemDto));
-    if (updatedItemOptional.isEmpty()) {
-      throw new ItemNotFoundException(id);
-    } else {
-      return ResponseEntity.ok(toDoItemMapper.todoItemOutDto(updatedItemOptional.get()));
+    @PostMapping
+    public ResponseEntity<ToDoItemOutDto> addItem(
+            @RequestBody @Validated TodoItemInDto todoItemInDto
+    ) throws ItemMissMatchedValuesException {
+        TodoItem savedItem;
+        savedItem = itemUseCase.add(toDoItemMapper.todoitem(todoItemInDto));
+        return new ResponseEntity<>(toDoItemMapper.todoItemOutDto(savedItem), HttpStatus.CREATED);
     }
-  }
 
-  @GetMapping
-  public ResponseEntity<List<ToDoItemOutDto>> getAllItems(
-      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size
-  ) {
-    List<TodoItem> allItems = itemUseCase.getAllItems(page, size);
-    return new ResponseEntity<>(mapToTodoItemOutDtos(allItems), HttpStatus.OK);
-  }
-
-  @GetMapping("/not-done")
-  public ResponseEntity<List<ToDoItemOutDto>> getNotDoneItems(
-      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size
-  ) {
-    List<TodoItem> notDoneItems = itemUseCase.getNotDoneItems(page, size);
-    return new ResponseEntity<>(mapToTodoItemOutDtos(notDoneItems), HttpStatus.OK);
-  }
-
-  @GetMapping("/{id}")
-  public ResponseEntity<ToDoItemOutDto> getItemDetails(@PathVariable Long id) {
-    Optional<TodoItem> itemOptional = itemUseCase.getItemById(id);
-    if (itemOptional.isEmpty()) {
-      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @PatchMapping("/{id}")
+    public ResponseEntity<ToDoItemOutDto> updateTodoItem(
+            @PathVariable Long id, @RequestBody UpdateTodoItemDto updateTodoItemDto
+    ) throws ItemNotFoundException, ItemMissMatchedValuesException, ItemModificationForbiddenException {
+        TodoItem updatedItemOptional = itemUseCase.partiallyUpdate(
+                id, toDoItemMapper.todoItemPartiallyUpdateDto(updateTodoItemDto));
+        return ResponseEntity.ok(toDoItemMapper.todoItemOutDto(updatedItemOptional));
     }
-    return new ResponseEntity<>(toDoItemMapper.todoItemOutDto(itemOptional.get()), HttpStatus.OK);
-  }
 
-  private List<ToDoItemOutDto> mapToTodoItemOutDtos(List<TodoItem> allItems) {
-    return allItems.stream().map(toDoItemMapper::todoItemOutDto).toList();
-  }
+    @GetMapping
+    public ResponseEntity<List<ToDoItemOutDto>> getAllItems(
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size
+    ) {
+        List<TodoItem> allItems = itemUseCase.getAllItems(page, size);
+        return new ResponseEntity<>(mapToTodoItemOutDtos(allItems), HttpStatus.OK);
+    }
+
+    @GetMapping("/not-done")
+    public ResponseEntity<List<ToDoItemOutDto>> getNotDoneItems(
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size
+    ) {
+        List<TodoItem> notDoneItems = itemUseCase.getNotDoneItems(page, size);
+        return new ResponseEntity<>(mapToTodoItemOutDtos(notDoneItems), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ToDoItemOutDto> getItemDetails(@PathVariable Long id) {
+        Optional<TodoItem> itemOptional = itemUseCase.getItemById(id);
+        return itemOptional.map(todoItem -> new ResponseEntity<>(toDoItemMapper.todoItemOutDto(todoItem), HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    private List<ToDoItemOutDto> mapToTodoItemOutDtos(List<TodoItem> allItems) {
+        return allItems.stream().map(toDoItemMapper::todoItemOutDto).toList();
+    }
 }
