@@ -8,6 +8,29 @@ The to-do service provides a RESTful API for managing to-do items. Users can add
 
 This is a sample project demonstrating basic functionality, with unit and integration tests included. While the test coverage is not extensive, it provides a foundation for further development.
 
+
+### Functional requirements
+Each to-do item has the following attributes:
+
+description,
+
+status: "not done", "done", "past due",
+
+date-time of creation,
+
+due date-time,
+
+date-time at which the item was marked as done.
+
+The service should provide a RESTful API that allows to:
+add an item,
+change description of an item,
+mark an item as "done",
+mark an item as "not done",
+get all items that are "not done" (with an option to retrieve all items),
+get details of a specific item.
+The service should automatically change status of items that are past their due date as "past due".
+The service should forbid changing "past due" items via its REST API.
 ### Architecture
 
 The project uses a Hexagonal architecture to ensure separation of concerns and maintainability.
